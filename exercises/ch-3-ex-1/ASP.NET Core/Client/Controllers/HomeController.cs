@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -27,13 +28,19 @@ namespace Client.Controllers
         private const string TokenEndpoint = "http://localhost:9001/token";
 
         private static string _accessToken;
+        private static string _state;
 
         private readonly HttpClient _httpClient = new HttpClient();
+        private readonly RandomNumberGenerator _prng = RandomNumberGenerator.Create();
 
         [HttpGet("authorize")]
         public IActionResult Authorize()
         {
             _accessToken = null;
+
+            var state = new byte[36];
+            _prng.GetBytes(state);
+            _state = Convert.ToBase64String(state);
 
             var authorizeUrl = BuildUrl(
                 AuthorizationEndpoint,
@@ -41,18 +48,24 @@ namespace Client.Controllers
                 {
                     response_type = "code",
                     client_id = ClientId,
-                    redirect_uri = ClientUri + Url.Action("Callback")
+                    redirect_uri = ClientUri + Url.Action("Callback"),
+                    state = _state
                 });
 
             return Redirect(authorizeUrl);
         }
 
         [HttpGet("callback")]
-        public async Task<IActionResult> Callback(string code, string error)
+        public async Task<IActionResult> Callback(string code, string state, string error)
         {
             if (!string.IsNullOrEmpty(error))
             {
                 return View("Error", error);
+            }
+
+            if (string.IsNullOrEmpty(state) || state != _state)
+            {
+                return View("Error", "State value did not match");
             }
 
             var content = new StringContent(
