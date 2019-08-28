@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Net.Http;
 using System.Web;
 
 using Client.Models;
@@ -15,6 +16,8 @@ namespace Client.Controllers
         private const string ClientSecret = "oauth-client-secret-1";
         private const string ClientUri = "http://localhost:9000";
         private const string TokenEndpoint = "http://localhost:9001/token";
+
+        private readonly HttpClient _httpClient = new HttpClient();
 
         [HttpGet("authorize")]
         public IActionResult Authorize()
