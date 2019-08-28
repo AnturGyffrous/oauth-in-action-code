@@ -33,5 +33,17 @@ namespace Client.Controllers
 
             return parameters.ToString();
         }
+
+        private static string BuildUrl(string uri, object queryString = null)
+        {
+            if (queryString == null)
+            {
+                return uri;
+            }
+
+            var uriBuilder = new UriBuilder(uri) { Query = BuildQueryString(queryString) };
+
+            return uriBuilder.Uri.ToString();
+        }
     }
 }
