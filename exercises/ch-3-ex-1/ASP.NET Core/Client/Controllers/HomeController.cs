@@ -90,6 +90,11 @@ namespace Client.Controllers
         [HttpGet("fetch_resource")]
         public async Task<IActionResult> FetchResource()
         {
+            if (string.IsNullOrEmpty(_accessToken))
+            {
+                return View("Error", "Missing access token.");
+            }
+
             var request = new HttpRequestMessage(HttpMethod.Post, ProtectedResource);
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
 
