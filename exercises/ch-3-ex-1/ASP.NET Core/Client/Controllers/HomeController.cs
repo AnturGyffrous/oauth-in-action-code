@@ -28,6 +28,7 @@ namespace Client.Controllers
         private const string TokenEndpoint = "http://localhost:9001/token";
 
         private static string _accessToken;
+        private static bool _redirectOnCallback;
         private static string _state;
 
         private readonly HttpClient _httpClient = new HttpClient();
@@ -97,7 +98,9 @@ namespace Client.Controllers
 
             _accessToken = tokenResponse.AccessToken;
 
-            return RedirectToAction("Index");
+            return _redirectOnCallback
+                ? RedirectToAction("FetchResource")
+                : RedirectToAction("Index");
         }
 
         [HttpGet("fetch_resource")]
@@ -105,13 +108,22 @@ namespace Client.Controllers
         {
             if (string.IsNullOrEmpty(_accessToken))
             {
-                return View("Error", "Missing access token.");
+                _redirectOnCallback = true;
+                return RedirectToAction("Authorize");
             }
+
+            _redirectOnCallback = false;
 
             var request = new HttpRequestMessage(HttpMethod.Post, ProtectedResource);
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
 
             var response = await _httpClient.SendAsync(request);
+
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                _redirectOnCallback = true;
+                return RedirectToAction("Authorize");
+            }
 
             if (!response.IsSuccessStatusCode)
             {
