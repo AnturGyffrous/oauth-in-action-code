@@ -38,7 +38,7 @@
         <p>Access token value: <span class="label label-danger">@(Model.AccessToken ?? "NONE")</span></p>
         <p>Scope value: <span class="label label-danger">@(Model.Scope ?? "NONE")</span></p>
         <a class="btn btn-default" asp-action="Authorize">Get OAuth Token</a>
-        <a class="btn btn-default" href="/fetch_resource">Get Protected Resource</a>
+        <a class="btn btn-default" asp-action="FetchResource">Get Protected Resource</a>
     </div>
 
 </div><!-- /.container -->

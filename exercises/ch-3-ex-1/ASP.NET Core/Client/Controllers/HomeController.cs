@@ -13,6 +13,7 @@ using Client.OAuth;
 using Microsoft.AspNetCore.Mvc;
 
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Client.Controllers
 {
@@ -76,6 +77,21 @@ namespace Client.Controllers
             _accessToken = tokenResponse.AccessToken;
 
             return RedirectToAction("Index");
+        }
+
+        [HttpGet("fetch_resource")]
+        public async Task<IActionResult> FetchResource()
+        {
+            var request = new HttpRequestMessage(HttpMethod.Post, ProtectedResource);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
+
+            var response = await _httpClient.SendAsync(request);
+
+            response.EnsureSuccessStatusCode();
+
+            var body = await response.Content.ReadAsStringAsync();
+
+            return View("Data", JToken.Parse(body).ToString(Formatting.Indented));
         }
 
         [HttpGet]
