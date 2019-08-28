@@ -100,7 +100,10 @@ namespace Client.Controllers
 
             var response = await _httpClient.SendAsync(request);
 
-            response.EnsureSuccessStatusCode();
+            if (!response.IsSuccessStatusCode)
+            {
+                return View("Error", $"Server returned response code: {response.StatusCode}");
+            }
 
             var body = await response.Content.ReadAsStringAsync();
 
