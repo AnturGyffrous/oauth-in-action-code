@@ -74,7 +74,10 @@ namespace Client.Controllers
 
             var response = await _httpClient.SendAsync(request);
 
-            response.EnsureSuccessStatusCode();
+            if (!response.IsSuccessStatusCode)
+            {
+                return View("Error", $"Unable to fetch access token, server response: {response.StatusCode}");
+            }
 
             var tokenResponse = JsonConvert
                 .DeserializeObject<TokenResponse>(await response.Content.ReadAsStringAsync());
