@@ -12,7 +12,9 @@ namespace Client.Controllers
     {
         private const string AuthorizationEndpoint = "http://localhost:9001/authorize";
         private const string ClientId = "oauth-client-1";
+        private const string ClientSecret = "oauth-client-secret-1";
         private const string ClientUri = "http://localhost:9000";
+        private const string TokenEndpoint = "http://localhost:9001/token";
 
         [HttpGet("authorize")]
         public IActionResult Authorize()
