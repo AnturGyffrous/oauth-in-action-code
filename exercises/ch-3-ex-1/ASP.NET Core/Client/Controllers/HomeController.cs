@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Threading.Tasks;
 using System.Web;
 
 using Client.Models;
@@ -35,7 +39,31 @@ namespace Client.Controllers
         }
 
         [HttpGet("callback")]
-        public IActionResult Callback() => throw new NotImplementedException();
+        public async Task<IActionResult> Callback(string code)
+        {
+            var content = new StringContent(
+                BuildQueryString(new
+                {
+                    grant_type = "authorization_code",
+                    code,
+                    redirect_uri = ClientUri + Url.Action("Callback")
+                }));
+
+            content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
+
+            var request = new HttpRequestMessage(HttpMethod.Post, TokenEndpoint) { Content = content };
+
+            var credentials = $"{WebUtility.UrlEncode(ClientId)}:{WebUtility.UrlEncode(ClientSecret)}";
+            var authenticationValue = Convert.ToBase64String(Encoding.ASCII.GetBytes(credentials));
+
+            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", authenticationValue);
+
+            var response = await _httpClient.SendAsync(request);
+
+            response.EnsureSuccessStatusCode();
+
+            return RedirectToAction("Index");
+        }
 
         [HttpGet]
         public IActionResult Index() => View(new HomeViewModel { AccessToken = null, Scope = null });
