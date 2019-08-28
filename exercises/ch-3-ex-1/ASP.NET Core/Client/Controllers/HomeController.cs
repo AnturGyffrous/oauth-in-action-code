@@ -22,6 +22,7 @@ namespace Client.Controllers
         private const string ClientId = "oauth-client-1";
         private const string ClientSecret = "oauth-client-secret-1";
         private const string ClientUri = "http://localhost:9000";
+        private const string ProtectedResource = "http://localhost:9002/resource";
         private const string TokenEndpoint = "http://localhost:9001/token";
 
         private static string _accessToken;
