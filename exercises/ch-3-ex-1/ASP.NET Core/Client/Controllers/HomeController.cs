@@ -8,8 +8,11 @@ using System.Threading.Tasks;
 using System.Web;
 
 using Client.Models;
+using Client.OAuth;
 
 using Microsoft.AspNetCore.Mvc;
+
+using Newtonsoft.Json;
 
 namespace Client.Controllers
 {
@@ -21,11 +24,15 @@ namespace Client.Controllers
         private const string ClientUri = "http://localhost:9000";
         private const string TokenEndpoint = "http://localhost:9001/token";
 
+        private static string _accessToken;
+
         private readonly HttpClient _httpClient = new HttpClient();
 
         [HttpGet("authorize")]
         public IActionResult Authorize()
         {
+            _accessToken = null;
+
             var authorizeUrl = BuildUrl(
                 AuthorizationEndpoint,
                 new
@@ -62,11 +69,16 @@ namespace Client.Controllers
 
             response.EnsureSuccessStatusCode();
 
+            var tokenResponse = JsonConvert
+                .DeserializeObject<TokenResponse>(await response.Content.ReadAsStringAsync());
+
+            _accessToken = tokenResponse.AccessToken;
+
             return RedirectToAction("Index");
         }
 
         [HttpGet]
-        public IActionResult Index() => View(new HomeViewModel { AccessToken = null, Scope = null });
+        public IActionResult Index() => View(new HomeViewModel { AccessToken = _accessToken, Scope = null });
 
         private static string BuildQueryString(object queryString = null)
         {
