@@ -48,8 +48,13 @@ namespace Client.Controllers
         }
 
         [HttpGet("callback")]
-        public async Task<IActionResult> Callback(string code)
+        public async Task<IActionResult> Callback(string code, string error)
         {
+            if (!string.IsNullOrEmpty(error))
+            {
+                return View("Error", error);
+            }
+
             var content = new StringContent(
                 BuildQueryString(new
                 {
