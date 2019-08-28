@@ -27,6 +27,9 @@ namespace Client.Controllers
             return Redirect(authorizeUrl);
         }
 
+        [HttpGet("callback")]
+        public IActionResult Callback() => throw new NotImplementedException();
+
         [HttpGet]
         public IActionResult Index() => View(new HomeViewModel { AccessToken = null, Scope = null });
 
