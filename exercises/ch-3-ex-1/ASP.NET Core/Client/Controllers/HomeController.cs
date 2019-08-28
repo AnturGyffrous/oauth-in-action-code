@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Web;
 
 using Client.Models;
 
@@ -13,5 +15,23 @@ namespace Client.Controllers
 
         [HttpGet]
         public IActionResult Index() => View(new HomeViewModel { AccessToken = null, Scope = null });
+
+        private static string BuildQueryString(object queryString = null)
+        {
+            if (queryString == null)
+            {
+                return null;
+            }
+
+            var parameters = HttpUtility.ParseQueryString(string.Empty);
+
+            queryString
+                .GetType()
+                .GetProperties()
+                .ToList()
+                .ForEach(x => parameters.Add(x.Name, x.GetValue(queryString, null).ToString()));
+
+            return parameters.ToString();
+        }
     }
 }
