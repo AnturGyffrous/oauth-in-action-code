@@ -12,6 +12,7 @@ namespace Client.Controllers
     {
         private const string AuthorizationEndpoint = "http://localhost:9001/authorize";
         private const string ClientId = "oauth-client-1";
+        private const string ClientUri = "http://localhost:9000";
 
         [HttpGet("authorize")]
         public IActionResult Authorize()
@@ -21,7 +22,8 @@ namespace Client.Controllers
                 new
                 {
                     response_type = "code",
-                    client_id = ClientId
+                    client_id = ClientId,
+                    redirect_uri = ClientUri + Url.Action("Callback")
                 });
 
             return Redirect(authorizeUrl);
