@@ -10,8 +10,22 @@ namespace Client.Controllers
 {
     public class HomeController : Controller
     {
+        private const string AuthorizationEndpoint = "http://localhost:9001/authorize";
+        private const string ClientId = "oauth-client-1";
+
         [HttpGet("authorize")]
-        public IActionResult Authorize() => throw new NotImplementedException();
+        public IActionResult Authorize()
+        {
+            var authorizeUrl = BuildUrl(
+                AuthorizationEndpoint,
+                new
+                {
+                    response_type = "code",
+                    client_id = ClientId
+                });
+
+            return Redirect(authorizeUrl);
+        }
 
         [HttpGet]
         public IActionResult Index() => View(new HomeViewModel { AccessToken = null, Scope = null });
