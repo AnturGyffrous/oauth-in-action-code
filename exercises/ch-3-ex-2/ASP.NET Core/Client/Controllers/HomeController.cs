@@ -119,6 +119,12 @@ namespace Client.Controllers
 
             if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
+                _accessToken = null;
+                if (!string.IsNullOrEmpty(_refreshToken))
+                {
+                    return await RefreshAccessToken();
+                }
+
                 _redirectOnCallback = true;
                 return RedirectToAction("Authorize");
             }
@@ -186,6 +192,29 @@ namespace Client.Controllers
             requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Basic", authenticationValue);
 
             return _httpClient.SendAsync(requestMessage);
+        }
+
+        private async Task<IActionResult> RefreshAccessToken()
+        {
+            var response = await PostMessageToTokenEndpoint(new
+            {
+                grant_type = "refresh_token",
+                refresh_token = _refreshToken
+            });
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _refreshToken = null;
+                return View("Error", $"Unable to fetch access token, server response: {response.StatusCode}");
+            }
+
+            var tokenResponse = JsonConvert
+                .DeserializeObject<TokenResponse>(await response.Content.ReadAsStringAsync());
+
+            _accessToken = tokenResponse.AccessToken;
+            _refreshToken = tokenResponse.RefreshToken;
+
+            return RedirectToAction("FetchResource");
         }
     }
 }
