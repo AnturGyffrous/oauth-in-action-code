@@ -73,24 +73,12 @@ namespace Client.Controllers
                 return View("Error", "State value did not match");
             }
 
-            var content = new StringContent(
-                BuildQueryString(new
-                {
-                    grant_type = "authorization_code",
-                    code,
-                    redirect_uri = ClientUri + Url.Action("Callback")
-                }));
-
-            content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
-
-            var request = new HttpRequestMessage(HttpMethod.Post, TokenEndpoint) { Content = content };
-
-            var credentials = $"{WebUtility.UrlEncode(ClientId)}:{WebUtility.UrlEncode(ClientSecret)}";
-            var authenticationValue = Convert.ToBase64String(Encoding.ASCII.GetBytes(credentials));
-
-            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", authenticationValue);
-
-            var response = await _httpClient.SendAsync(request);
+            var response = await PostMessageToTokenEndpoint(new
+            {
+                grant_type = "authorization_code",
+                code,
+                redirect_uri = ClientUri + Url.Action("Callback")
+            });
 
             if (!response.IsSuccessStatusCode)
             {
@@ -177,6 +165,22 @@ namespace Client.Controllers
             var uriBuilder = new UriBuilder(uri) { Query = BuildQueryString(queryString) };
 
             return uriBuilder.Uri.ToString();
+        }
+
+        private Task<HttpResponseMessage> PostMessageToTokenEndpoint(object request)
+        {
+            var content = new StringContent(BuildQueryString(request));
+
+            content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
+
+            var requestMessage = new HttpRequestMessage(HttpMethod.Post, TokenEndpoint) { Content = content };
+
+            var credentials = $"{WebUtility.UrlEncode(ClientId)}:{WebUtility.UrlEncode(ClientSecret)}";
+            var authenticationValue = Convert.ToBase64String(Encoding.ASCII.GetBytes(credentials));
+
+            requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Basic", authenticationValue);
+
+            return _httpClient.SendAsync(requestMessage);
         }
     }
 }
