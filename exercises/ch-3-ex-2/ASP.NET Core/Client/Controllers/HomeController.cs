@@ -91,6 +91,11 @@ namespace Client.Controllers
             _accessToken = tokenResponse.AccessToken;
             _scope = tokenResponse.Scope;
 
+            if (!string.IsNullOrEmpty(tokenResponse.RefreshToken))
+            {
+                _refreshToken = tokenResponse.RefreshToken;
+            }
+
             return _redirectOnCallback
                 ? RedirectToAction("FetchResource")
                 : RedirectToAction("Index");
