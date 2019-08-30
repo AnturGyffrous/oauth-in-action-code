@@ -27,9 +27,9 @@ namespace Client.Controllers
         private const string ProtectedResource = "http://localhost:9002/resource";
         private const string TokenEndpoint = "http://localhost:9001/token";
 
-        private static string _accessToken = "987tghjkiu6trfghjuytrghj";
+        private static string _accessToken;
         private static bool _redirectOnCallback;
-        private static string _refreshToken = "j2r3oj32r23rmasd98uhjrk2o3i";
+        private static string _refreshToken;
         private static string _state;
 
         private readonly HttpClient _httpClient = new HttpClient();
