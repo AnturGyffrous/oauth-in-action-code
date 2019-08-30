@@ -202,6 +202,14 @@ namespace Client.Controllers
                 refresh_token = _refreshToken
             });
 
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                _accessToken = null;
+                _refreshToken = null;
+                _redirectOnCallback = true;
+                return RedirectToAction("Authorize");
+            }
+
             if (!response.IsSuccessStatusCode)
             {
                 _refreshToken = null;
