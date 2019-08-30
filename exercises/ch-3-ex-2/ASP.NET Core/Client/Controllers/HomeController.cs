@@ -141,7 +141,13 @@ namespace Client.Controllers
         }
 
         [HttpGet]
-        public IActionResult Index() => View(new HomeViewModel { AccessToken = _accessToken, Scope = _scope });
+        public IActionResult Index() => View(
+            new HomeViewModel
+            {
+                AccessToken = _accessToken,
+                Scope = _scope,
+                RefreshToken = _refreshToken
+            });
 
         private static string BuildQueryString(object queryString = null)
         {
