@@ -14,6 +14,7 @@ namespace ProtectedResource
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseCors(x => x.AllowAnyOrigin());
             app.UseMvc();
         }
 
@@ -23,6 +24,7 @@ namespace ProtectedResource
         {
             var mvcCoreBuilder = services.AddMvcCore();
             mvcCoreBuilder.AddRazorViewEngine();
+            mvcCoreBuilder.AddCors();
         }
     }
 }
