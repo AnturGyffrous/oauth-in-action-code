@@ -40,6 +40,10 @@ namespace ProtectedResource.OAuth
             {
                 accessToken = accessTokenFormValue;
             }
+            else if (Request.Query.TryGetValue("access_token", out var accessTokenQueryValue))
+            {
+                accessToken = accessTokenQueryValue;
+            }
 
             if (accessToken == null)
             {
