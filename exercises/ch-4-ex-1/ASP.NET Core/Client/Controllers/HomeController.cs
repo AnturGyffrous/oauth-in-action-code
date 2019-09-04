@@ -22,7 +22,6 @@ namespace Client.Controllers
     {
         private const string AuthorizationEndpoint = "http://localhost:9001/authorize";
         private const string ClientId = "oauth-client-1";
-        private const string ClientScope = "foo";
         private const string ClientSecret = "oauth-client-secret-1";
         private const string ClientUri = "http://localhost:9000";
         private const string ProtectedResource = "http://localhost:9002/resource";
@@ -31,7 +30,6 @@ namespace Client.Controllers
         private static string _accessToken = "987tghjkiu6trfghjuytrghj";
         private static bool _redirectOnCallback;
         private static string _refreshToken = "j2r3oj32r23rmasd98uhjrk2o3i";
-        private static string _scope;
         private static string _state;
 
         private readonly HttpClient _httpClient = new HttpClient();
@@ -51,7 +49,6 @@ namespace Client.Controllers
                 new
                 {
                     response_type = "code",
-                    scope = ClientScope,
                     client_id = ClientId,
                     redirect_uri = ClientUri + Url.Action("Callback"),
                     state = _state
@@ -89,7 +86,6 @@ namespace Client.Controllers
                 .DeserializeObject<TokenResponse>(await response.Content.ReadAsStringAsync());
 
             _accessToken = tokenResponse.AccessToken;
-            _scope = tokenResponse.Scope;
 
             if (!string.IsNullOrEmpty(tokenResponse.RefreshToken))
             {
@@ -144,7 +140,6 @@ namespace Client.Controllers
             new HomeViewModel
             {
                 AccessToken = _accessToken,
-                Scope = _scope,
                 RefreshToken = _refreshToken
             });
 
