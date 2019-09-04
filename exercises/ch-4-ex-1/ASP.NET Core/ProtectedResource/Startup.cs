@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 
+using ProtectedResource.Database;
+
 namespace ProtectedResource
 {
     public class Startup
@@ -25,6 +27,8 @@ namespace ProtectedResource
             var mvcCoreBuilder = services.AddMvcCore();
             mvcCoreBuilder.AddRazorViewEngine();
             mvcCoreBuilder.AddCors();
+
+            services.AddScoped<INoSql>(x => new NoSql(@"..\..\database.nosql"));
         }
     }
 }
