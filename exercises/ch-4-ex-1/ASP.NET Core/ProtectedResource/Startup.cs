@@ -31,6 +31,7 @@ namespace ProtectedResource
             mvcCoreBuilder.AddAuthorization();
             mvcCoreBuilder.AddRazorViewEngine();
             mvcCoreBuilder.AddCors();
+            mvcCoreBuilder.AddJsonFormatters();
 
             services.AddScoped<INoSql>(x => new NoSql(@"..\..\database.nosql"));
 
