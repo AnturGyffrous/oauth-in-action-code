@@ -36,6 +36,10 @@ namespace ProtectedResource.OAuth
             {
                 accessToken = authenticationHeader.Parameter;
             }
+            else if (Request.HasFormContentType && Request.Form.TryGetValue("access_token", out var accessTokenFormValue))
+            {
+                accessToken = accessTokenFormValue;
+            }
 
             if (accessToken == null)
             {
