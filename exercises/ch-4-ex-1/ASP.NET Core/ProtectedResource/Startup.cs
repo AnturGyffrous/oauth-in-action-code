@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 
 using ProtectedResource.Database;
+using ProtectedResource.OAuth;
 
 namespace ProtectedResource
 {
@@ -17,6 +19,7 @@ namespace ProtectedResource
             }
 
             app.UseCors(x => x.AllowAnyOrigin());
+            app.UseAuthentication();
             app.UseMvc();
         }
 
@@ -25,10 +28,13 @@ namespace ProtectedResource
         public void ConfigureServices(IServiceCollection services)
         {
             var mvcCoreBuilder = services.AddMvcCore();
+            mvcCoreBuilder.AddAuthorization();
             mvcCoreBuilder.AddRazorViewEngine();
             mvcCoreBuilder.AddCors();
 
             services.AddScoped<INoSql>(x => new NoSql(@"..\..\database.nosql"));
+
+            services.AddAuthentication("OAuthAccessToken").AddScheme<AuthenticationSchemeOptions, OAuthAccessTokenHandler>("OAuthAccessToken", null);
         }
     }
 }
