@@ -14,6 +14,7 @@ namespace ProtectedResource.Controllers
         private static readonly Stack<string> SavedWords = new Stack<string>();
 
         [HttpPost("words")]
+        [Authorize(Roles = "write")]
         public StatusCodeResult AddWord([FromForm] string word)
         {
             SavedWords.Push(word);
@@ -21,6 +22,7 @@ namespace ProtectedResource.Controllers
         }
 
         [HttpDelete("words")]
+        [Authorize(Roles = "delete")]
         public StatusCodeResult DeleteWord()
         {
             SavedWords.Pop();
@@ -28,6 +30,7 @@ namespace ProtectedResource.Controllers
         }
 
         [HttpGet("words")]
+        [Authorize(Roles = "read")]
         public object GetWords() =>
             new
             {
