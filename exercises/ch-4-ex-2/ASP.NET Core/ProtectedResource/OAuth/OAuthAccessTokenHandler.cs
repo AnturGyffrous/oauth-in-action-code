@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
+using Newtonsoft.Json.Linq;
+
 using ProtectedResource.Database;
 
 namespace ProtectedResource.OAuth
@@ -58,7 +60,11 @@ namespace ProtectedResource.OAuth
                 return Task.FromResult(AuthenticateResult.Fail("Invalid access token"));
             }
 
-            var identity = new ClaimsIdentity(Enumerable.Empty<Claim>(), Scheme.Name);
+            var scopes = token.TryGetValue("scope", out var scopesValue)
+                ? (scopesValue as JArray ?? new JArray()).ToObject<string[]>()
+                : Enumerable.Empty<string>();
+
+            var identity = new ClaimsIdentity(scopes.Select(x => new Claim(ClaimTypes.Role, x)), Scheme.Name);
             var principle = new ClaimsPrincipal(identity);
             var ticket = new AuthenticationTicket(principle, Scheme.Name);
 
