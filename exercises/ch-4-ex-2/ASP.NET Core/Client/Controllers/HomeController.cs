@@ -28,7 +28,6 @@ namespace Client.Controllers
         private const string TokenEndpoint = "http://localhost:9001/token";
 
         private static string _accessToken;
-        private static bool _redirectOnCallback;
         private static string _refreshToken;
         private static string _state;
 
@@ -92,22 +91,12 @@ namespace Client.Controllers
                 _refreshToken = tokenResponse.RefreshToken;
             }
 
-            return _redirectOnCallback
-                ? RedirectToAction("FetchResource")
-                : RedirectToAction("Index");
+            return RedirectToAction("Index");
         }
 
         [HttpGet("fetch_resource")]
         public async Task<IActionResult> FetchResource()
         {
-            if (string.IsNullOrEmpty(_accessToken))
-            {
-                _redirectOnCallback = true;
-                return RedirectToAction("Authorize");
-            }
-
-            _redirectOnCallback = false;
-
             var request = new HttpRequestMessage(HttpMethod.Post, ProtectedResource);
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
 
@@ -121,7 +110,6 @@ namespace Client.Controllers
                     return await RefreshAccessToken();
                 }
 
-                _redirectOnCallback = true;
                 return RedirectToAction("Authorize");
             }
 
@@ -201,7 +189,6 @@ namespace Client.Controllers
             {
                 _accessToken = null;
                 _refreshToken = null;
-                _redirectOnCallback = true;
                 return RedirectToAction("Authorize");
             }
 
