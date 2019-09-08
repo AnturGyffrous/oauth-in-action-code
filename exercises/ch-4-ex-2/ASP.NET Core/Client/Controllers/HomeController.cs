@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 
+using Client.Enums;
 using Client.Models;
 using Client.OAuth;
 
@@ -27,6 +28,7 @@ namespace Client.Controllers
         private const string ClientUri = "http://localhost:9000";
         private const string ProtectedResource = "http://localhost:9002/resource";
         private const string TokenEndpoint = "http://localhost:9001/token";
+        private const string WordsApi = "http://localhost:9002/words";
 
         private static string _accessToken;
         private static string _refreshToken;
@@ -35,6 +37,22 @@ namespace Client.Controllers
 
         private readonly HttpClient _httpClient = new HttpClient();
         private readonly RandomNumberGenerator _prng = RandomNumberGenerator.Create();
+
+        [HttpGet("add_word")]
+        public async Task<IActionResult> AddWord(string word)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Post, WordsApi);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
+            request.Content = new StringContent(BuildQueryString(new { word }), Encoding.UTF8,
+                "application/x-www-form-urlencoded");
+
+            var response = await _httpClient.SendAsync(request);
+
+            return View("Words",
+                response.IsSuccessStatusCode
+                    ? new WordsViewModel { Result = WordsResult.AddSuccess }
+                    : new WordsViewModel { Result = WordsResult.AddFailure });
+        }
 
         [HttpGet("authorize")]
         public IActionResult Authorize()
@@ -98,6 +116,20 @@ namespace Client.Controllers
             return RedirectToAction("Index");
         }
 
+        [HttpGet("delete_word")]
+        public async Task<IActionResult> DeleteWord(string word)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Delete, WordsApi);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
+
+            var response = await _httpClient.SendAsync(request);
+
+            return View("Words",
+                response.IsSuccessStatusCode
+                    ? new WordsViewModel { Result = WordsResult.RemoveSuccess }
+                    : new WordsViewModel { Result = WordsResult.RemoveFailure });
+        }
+
         [HttpGet("fetch_resource")]
         public async Task<IActionResult> FetchResource()
         {
@@ -125,6 +157,30 @@ namespace Client.Controllers
             var body = await response.Content.ReadAsStringAsync();
 
             return View("Data", JToken.Parse(body).ToString(Formatting.Indented));
+        }
+
+        [HttpGet("get_words")]
+        public async Task<IActionResult> GetWords()
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, WordsApi);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
+
+            var response = await _httpClient.SendAsync(request);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return View("Words", new WordsViewModel { Result = WordsResult.GetFailure });
+            }
+
+            var wordsResponse =
+                JsonConvert.DeserializeObject<WordsResponse>(await response.Content.ReadAsStringAsync());
+
+            return View("Words",
+                new WordsViewModel
+                {
+                    Words = wordsResponse.Words, Timestamp = wordsResponse.Timestamp,
+                    Result = WordsResult.GetSuccess
+                });
         }
 
         [HttpGet]

@@ -64,7 +64,7 @@
                     {
                         <p>Timestamp: @Model.Timestamp</p>
                     }
-                    <a class="btn btn-info" href="/get_words">GET current value</a>
+                    <a class="btn btn-info" asp-action="GetWords">GET current value</a>
                 </div>
             </div>
             <div class="col-md-4">
@@ -82,9 +82,9 @@
                             <span class="label label-danger">Failure</span>
                         </p>
                     }
-                    <form class="form" action="/add_word" method="GET">
+                    <form class="form" asp-action="AddWord" method="get">
                         <input type="text" name="word" placeholder="word">
-                        <input type="submit" class="btn btn-warning" href="/" value="POST a new word">
+                        <input type="submit" class="btn btn-warning" value="POST a new word">
                     </form>
                 </div>
             </div>
@@ -103,7 +103,7 @@
                             <span class="label label-danger">Failure</span>
                         </p>
                     }
-                    <a class="btn btn-danger" href="/delete_word">DELETE the last word</a>
+                    <a class="btn btn-danger" asp-action="DeleteWord">DELETE the last word</a>
                 </div>
             </div>
 
