@@ -70,5 +70,11 @@ namespace ProtectedResource.OAuth
 
             return Task.FromResult(AuthenticateResult.Success(ticket));
         }
+
+        protected override Task HandleForbiddenAsync(AuthenticationProperties properties)
+        {
+            Response.Headers.Add("WWW-Authenticate", $"Bearer realm={Request.Host}, error=\"insufficient_scope\"");
+            return base.HandleForbiddenAsync(properties);
+        }
     }
 }
