@@ -136,6 +136,9 @@ namespace Client.Controllers
                 RefreshToken = _refreshToken
             });
 
+        [HttpGet("produce")]
+        public IActionResult Produce() => View();
+
         private static string BuildQueryString(object queryString = null)
         {
             if (queryString == null)
