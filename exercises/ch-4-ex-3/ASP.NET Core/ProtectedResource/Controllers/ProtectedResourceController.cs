@@ -42,6 +42,14 @@ namespace ProtectedResource.Controllers
         [HttpGet("")]
         public IActionResult Index() => View();
 
+        [HttpGet("produce")]
+        public object Produce() => new
+        {
+            fruit = new[] { "apple", "banana", "kiwi" },
+            veggies = new[] { "lettuce", "onion", "potato" },
+            meats = new[] { "bacon", "steak", "chicken breast" }
+        };
+
         [HttpPost("resource")]
         public object Resource() => new
             { name = "Protected Resource", description = "This data has been protected by OAuth 2.0" };
