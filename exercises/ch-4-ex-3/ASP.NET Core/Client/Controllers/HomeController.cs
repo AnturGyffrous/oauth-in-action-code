@@ -25,6 +25,7 @@ namespace Client.Controllers
         private const string ClientScope = "fruit veggies meats";
         private const string ClientSecret = "oauth-client-secret-1";
         private const string ClientUri = "http://localhost:9000";
+        private const string ProduceApi = "http://localhost:9002/produce";
         private const string ProtectedResource = "http://localhost:9002/resource";
         private const string TokenEndpoint = "http://localhost:9001/token";
 
@@ -137,7 +138,26 @@ namespace Client.Controllers
             });
 
         [HttpGet("produce")]
-        public IActionResult Produce() => View();
+        public async Task<IActionResult> Produce()
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, ProduceApi);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
+
+            var response = await _httpClient.SendAsync(request);
+
+            var produceResponse = response.IsSuccessStatusCode
+                ? JsonConvert.DeserializeObject<ProduceResponse>(await response.Content.ReadAsStringAsync())
+                : new ProduceResponse();
+
+            return View("Produce",
+                new ProduceViewModel
+                {
+                    Scope = _scope,
+                    Fruits = produceResponse.Fruit ?? Enumerable.Empty<string>(),
+                    Veggies = produceResponse.Veggies ?? Enumerable.Empty<string>(),
+                    Meats = produceResponse.Meats ?? Enumerable.Empty<string>()
+                });
+        }
 
         private static string BuildQueryString(object queryString = null)
         {
