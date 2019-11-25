@@ -22,7 +22,7 @@ namespace Client.Controllers
     {
         private const string AuthorizationEndpoint = "http://localhost:9001/authorize";
         private const string ClientId = "oauth-client-1";
-        private const string ClientScope = "read write delete";
+        private const string ClientScope = "fruit veggies meats";
         private const string ClientSecret = "oauth-client-secret-1";
         private const string ClientUri = "http://localhost:9000";
         private const string ProtectedResource = "http://localhost:9002/resource";
