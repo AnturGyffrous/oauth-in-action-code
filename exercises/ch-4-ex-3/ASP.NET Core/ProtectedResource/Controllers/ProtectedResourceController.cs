@@ -43,12 +43,21 @@ namespace ProtectedResource.Controllers
         public IActionResult Index() => View();
 
         [HttpGet("produce")]
-        public object Produce() => new
+        public object Produce()
         {
-            fruit = new[] { "apple", "banana", "kiwi" },
-            veggies = new[] { "lettuce", "onion", "potato" },
-            meats = new[] { "bacon", "steak", "chicken breast" }
-        };
+            return new
+            {
+                fruit = User.IsInRole("fruit")
+                    ? new[] { "apple", "banana", "kiwi" }
+                    : Array.Empty<string>(),
+                veggies = User.IsInRole("veggies")
+                    ? new[] { "lettuce", "onion", "potato" }
+                    : Array.Empty<string>(),
+                meats = User.IsInRole("meats")
+                    ? new[] { "bacon", "steak", "chicken breast" }
+                    : Array.Empty<string>()
+            };
+        }
 
         [HttpPost("resource")]
         public object Resource() => new
