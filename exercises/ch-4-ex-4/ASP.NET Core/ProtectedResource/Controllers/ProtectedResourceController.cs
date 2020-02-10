@@ -64,16 +64,28 @@ namespace ProtectedResource.Controllers
         {
             var aliceFavorites = new
             {
-                movies = new[] { "The Multidmensional Vector", "Space Fights", "Jewelry Boss" },
-                foods = new[] { "bacon", "pizza", "bacon pizza" },
-                music = new[] { "techno", "industrial", "alternative" }
+                movies = User.IsInRole("movies")
+                    ? new[] { "The Multidmensional Vector", "Space Fights", "Jewelry Boss" }
+                    : Array.Empty<string>(),
+                foods = User.IsInRole("foods")
+                    ? new[] { "bacon", "pizza", "bacon pizza" }
+                    : Array.Empty<string>(),
+                music = User.IsInRole("music")
+                    ? new[] { "techno", "industrial", "alternative" }
+                    : Array.Empty<string>()
             };
 
             var bobFavorites = new
             {
-                movies = new[] { "An Unrequited Love", "Several Shades of Turquoise", "Think Of The Children" },
-                foods = new[] { "bacon", "kale", "gravel" },
-                music = new[] { "baroque", "ukulele", "baroque ukulele" }
+                movies = User.IsInRole("movies")
+                    ? new[] { "An Unrequited Love", "Several Shades of Turquoise", "Think Of The Children" }
+                    : Array.Empty<string>(),
+                foods = User.IsInRole("foods")
+                    ? new[] { "bacon", "kale", "gravel" }
+                    : Array.Empty<string>(),
+                music = User.IsInRole("music")
+                    ? new[] { "baroque", "ukulele", "baroque ukulele" }
+                    : Array.Empty<string>()
             };
 
             switch (User.Identity.Name)
