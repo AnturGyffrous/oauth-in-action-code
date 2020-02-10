@@ -64,7 +64,14 @@ namespace ProtectedResource.OAuth
                 ? (scopesValue as JArray ?? new JArray()).ToObject<string[]>()
                 : Enumerable.Empty<string>();
 
-            var identity = new ClaimsIdentity(scopes.Select(x => new Claim(ClaimTypes.Role, x)), Scheme.Name);
+            var claims = scopes.Select(x => new Claim(ClaimTypes.Role, x));
+
+            if (token.TryGetValue("user", out var user))
+            {
+                claims = claims.Union(new[] { new Claim(ClaimTypes.Name, user.ToString()) });
+            }
+
+            var identity = new ClaimsIdentity(claims, Scheme.Name);
             var principle = new ClaimsPrincipal(identity);
             var ticket = new AuthenticationTicket(principle, Scheme.Name);
 
