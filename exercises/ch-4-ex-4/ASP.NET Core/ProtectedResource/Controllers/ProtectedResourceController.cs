@@ -59,6 +59,43 @@ namespace ProtectedResource.Controllers
             };
         }
 
+        [HttpGet("favorites")]
+        public object Favorites()
+        {
+            var aliceFavorites = new
+            {
+                movies = new[] { "The Multidmensional Vector", "Space Fights", "Jewelry Boss" },
+                foods = new[] { "bacon", "pizza", "bacon pizza" },
+                music = new[] { "techno", "industrial", "alternative" }
+            };
+
+            var bobFavorites = new
+            {
+                movies = new[] { "An Unrequited Love", "Several Shades of Turquoise", "Think Of The Children" },
+                foods = new[] { "bacon", "kale", "gravel" },
+                music = new[] { "baroque", "ukulele", "baroque ukulele" }
+            };
+
+            switch (User.Identity.Name)
+            {
+                case "alice":
+                    return new { user = "Alice", favorites = aliceFavorites };
+                case "bob":
+                    return new { user = "Bob", favorites = bobFavorites };
+                default:
+                    return new
+                    {
+                        user = "Unknown",
+                        favorites = new
+                        {
+                            movies = Array.Empty<string>(),
+                            foods = Array.Empty<string>(),
+                            music = Array.Empty<string>()
+                        }
+                    };
+            }
+        }
+
         [HttpPost("resource")]
         public object Resource() => new
             { name = "Protected Resource", description = "This data has been protected by OAuth 2.0" };
