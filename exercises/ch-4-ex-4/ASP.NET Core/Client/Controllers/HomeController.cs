@@ -22,10 +22,10 @@ namespace Client.Controllers
     {
         private const string AuthorizationEndpoint = "http://localhost:9001/authorize";
         private const string ClientId = "oauth-client-1";
-        private const string ClientScope = "fruit veggies meats";
+        private const string ClientScope = "movies foods music";
         private const string ClientSecret = "oauth-client-secret-1";
         private const string ClientUri = "http://localhost:9000";
-        private const string ProduceApi = "http://localhost:9002/produce";
+        private const string FavoritesApi = "http://localhost:9002/favorites";
         private const string ProtectedResource = "http://localhost:9002/resource";
         private const string TokenEndpoint = "http://localhost:9001/token";
 
@@ -137,25 +137,28 @@ namespace Client.Controllers
                 RefreshToken = _refreshToken
             });
 
-        [HttpGet("produce")]
-        public async Task<IActionResult> Produce()
+        [HttpGet("favorites")]
+        public async Task<IActionResult> Favorites()
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, ProduceApi);
+            var request = new HttpRequestMessage(HttpMethod.Get, FavoritesApi);
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
 
             var response = await _httpClient.SendAsync(request);
 
             var produceResponse = response.IsSuccessStatusCode
-                ? JsonConvert.DeserializeObject<ProduceResponse>(await response.Content.ReadAsStringAsync())
-                : new ProduceResponse();
+                ? JsonConvert.DeserializeObject<FavoritesResponse>(await response.Content.ReadAsStringAsync())
+                : new FavoritesResponse();
 
-            return View("Produce",
-                new ProduceViewModel
+            return View("Favorites",
+                new FavoritesViewModel
                 {
-                    Scope = _scope,
-                    Fruits = produceResponse.Fruit ?? Enumerable.Empty<string>(),
-                    Veggies = produceResponse.Veggies ?? Enumerable.Empty<string>(),
-                    Meats = produceResponse.Meats ?? Enumerable.Empty<string>()
+                    User = produceResponse.User,
+                    Favorites = produceResponse.Favorites ?? new Favorites
+                    {
+                        Movies = Enumerable.Empty<string>(),
+                        Foods = Enumerable.Empty<string>(),
+                        Music = Enumerable.Empty<string>()
+                    }
                 });
         }
 
