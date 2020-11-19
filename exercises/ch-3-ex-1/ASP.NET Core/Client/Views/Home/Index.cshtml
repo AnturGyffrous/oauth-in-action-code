@@ -1,2 +1,3 @@
 ﻿@model HomeViewModel
 <p>Access token value: <span id="accessToken" class="label label-danger">@(Model?.AccessToken ?? "NONE")</span></p>
+<a class="btn btn-default" asp-action="Authorize">Get OAuth Token</a>
