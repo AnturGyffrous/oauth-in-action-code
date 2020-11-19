@@ -1,4 +1,8 @@
+using System.Threading.Tasks;
+
 using Client;
+
+using FluentAssertions;
 
 using Microsoft.AspNetCore.Mvc.Testing;
 
@@ -16,8 +20,16 @@ namespace ClientTests.Controllers
         private readonly WebApplicationFactory<Startup> _factory;
 
         [Fact]
-        public void Test1()
+        public async Task IndexShouldReturnSuccessStatusCode()
         {
+            // Arrange
+            var client = _factory.CreateClient();
+
+            // Act
+            var response = await client.GetAsync(string.Empty);
+
+            // Assert
+            response.IsSuccessStatusCode.Should().BeTrue();
         }
     }
 }
