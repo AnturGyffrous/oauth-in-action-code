@@ -1,3 +1,4 @@
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -27,6 +28,22 @@ namespace ClientTests.Controllers
         }
 
         private readonly WebApplicationFactory<Startup> _factory;
+
+        [Theory]
+        [InlineData("/Home/Authorize")]
+        [InlineData("/Home/Authorize/")]
+        public async Task AuthorizeShouldRedirectToIndex(string requestUri)
+        {
+            // Arrange
+            var client = _factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+
+            // Act
+            var response = await client.GetAsync(requestUri);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+            response.Headers.Location.Should().BeEquivalentTo(new Uri("/", UriKind.Relative));
+        }
 
         [Theory]
         [InlineData("")]
