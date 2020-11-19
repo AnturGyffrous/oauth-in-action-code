@@ -1,3 +1,6 @@
+using Client.Authentication.OAuth;
+
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +20,9 @@ namespace Client
 
             app.UseRouting();
 
+            app.UseAuthentication();
+            app.UseAuthorization();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
@@ -28,6 +34,9 @@ namespace Client
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+
+            services.AddAuthentication("OAuth")
+                    .AddScheme<AuthenticationSchemeOptions, OAuthAuthenticationHandler>("OAuth", options => { });
         }
     }
 }
