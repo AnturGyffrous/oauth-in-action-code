@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -42,7 +43,12 @@ namespace ClientTests.Controllers
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.Redirect);
-            response.Headers.Location.Should().BeEquivalentTo(new Uri("http://localhost:9001/authorize"));
+            response.Headers.Location.ToString().Should()
+                    .StartWith("http://localhost:9001/authorize")
+                    .And.Contain("response_type=code")
+                    .And.Contain("client_id=oauth-client-1")
+                    .And.ContainEquivalentOf(
+                        $"redirect_uri={UrlEncoder.Default.Encode("http://localhost:9000/callback")}");
         }
 
         [Theory]

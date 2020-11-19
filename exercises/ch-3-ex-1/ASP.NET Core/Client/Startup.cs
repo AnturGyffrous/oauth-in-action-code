@@ -37,8 +37,13 @@ namespace Client
             services.AddControllersWithViews();
 
             services.AddAuthentication("OAuth")
-                    .AddScheme<OAuthAuthenticationOptions, OAuthAuthenticationHandler>("OAuth",
-                        options => { options.AuthorizationEndpoint = new Uri("http://localhost:9001/authorize"); });
+                    .AddScheme<OAuthAuthenticationOptions, OAuthAuthenticationHandler>("OAuth", options =>
+                    {
+                        options.AuthorizationEndpoint = new Uri("http://localhost:9001/authorize");
+                        options.ClientId = "oauth-client-1";
+                        options.RedirectEndpoint = new Uri("http://localhost:9000/callback");
+                        options.ResponseType = "code";
+                    });
         }
     }
 }
