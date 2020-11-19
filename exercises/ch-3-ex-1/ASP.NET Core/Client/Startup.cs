@@ -1,6 +1,7 @@
+using System;
+
 using Client.Authentication.OAuth;
 
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,7 +37,8 @@ namespace Client
             services.AddControllersWithViews();
 
             services.AddAuthentication("OAuth")
-                    .AddScheme<AuthenticationSchemeOptions, OAuthAuthenticationHandler>("OAuth", options => { });
+                    .AddScheme<OAuthAuthenticationOptions, OAuthAuthenticationHandler>("OAuth",
+                        options => { options.AuthorizationEndpoint = new Uri("http://localhost:9001/authorize"); });
         }
     }
 }

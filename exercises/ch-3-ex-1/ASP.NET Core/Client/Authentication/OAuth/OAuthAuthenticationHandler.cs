@@ -7,13 +7,19 @@ using Microsoft.Extensions.Options;
 
 namespace Client.Authentication.OAuth
 {
-    public class OAuthAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
+    public class OAuthAuthenticationHandler : AuthenticationHandler<OAuthAuthenticationOptions>
     {
-        public OAuthAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock)
+        public OAuthAuthenticationHandler(IOptionsMonitor<OAuthAuthenticationOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock)
             : base(options, logger, encoder, clock)
         {
         }
 
         protected override Task<AuthenticateResult> HandleAuthenticateAsync() => Task.FromResult(AuthenticateResult.NoResult());
+
+        protected override Task HandleChallengeAsync(AuthenticationProperties properties)
+        {
+            Response.Redirect(Options.AuthorizationEndpoint.ToString());
+            return Task.CompletedTask;
+        }
     }
 }

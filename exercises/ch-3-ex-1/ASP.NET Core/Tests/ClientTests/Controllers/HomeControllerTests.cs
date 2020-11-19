@@ -42,7 +42,7 @@ namespace ClientTests.Controllers
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.Redirect);
-            response.Headers.Location.Should().BeEquivalentTo(new Uri("/", UriKind.Relative));
+            response.Headers.Location.Should().BeEquivalentTo(new Uri("http://localhost:9001/authorize"));
         }
 
         [Theory]
