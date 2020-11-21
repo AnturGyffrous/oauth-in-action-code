@@ -1,3 +1,4 @@
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -113,6 +114,22 @@ namespace ClientTests.Controllers
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.MethodNotAllowed);
+        }
+
+        [Fact]
+        public async Task CallbackShouldRedirectToOriginalRequestUri()
+        {
+            // Arrange
+            const string requestUri = "/Home/Authorize";
+            var client = _factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+            await client.GetAsync(requestUri);
+
+            // Act
+            var response = await client.GetAsync($"/callback?code={Guid.NewGuid():N}");
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+            response.Headers.Location.ToString().Should().Be(requestUri);
         }
 
         [Fact]
