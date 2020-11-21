@@ -13,5 +13,7 @@ namespace Client.Authentication.OAuth
         public Uri RedirectEndpoint { get; set; }
 
         public string ResponseType { get; set; }
+
+        public Uri TokenEndpoint { get; set; }
     }
 }

@@ -43,6 +43,7 @@ namespace Client
                         options.ClientId = "oauth-client-1";
                         options.RedirectEndpoint = new Uri("http://localhost:9000/callback");
                         options.ResponseType = "code";
+                        options.TokenEndpoint = new Uri("http://localhost:9001/token");
                     });
         }
     }
