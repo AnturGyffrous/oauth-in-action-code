@@ -18,10 +18,17 @@ namespace Client.Authentication.OAuth
     public class OAuthAuthenticationHandler : AuthenticationHandler<OAuthAuthenticationOptions>,
         IAuthenticationRequestHandler
     {
-        public OAuthAuthenticationHandler(IOptionsMonitor<OAuthAuthenticationOptions> options, ILoggerFactory logger,
-            UrlEncoder encoder, ISystemClock clock)
+        private readonly IHttpClientFactory _httpClientFactory;
+
+        public OAuthAuthenticationHandler(
+            IOptionsMonitor<OAuthAuthenticationOptions> options,
+            ILoggerFactory logger,
+            UrlEncoder encoder,
+            ISystemClock clock,
+            IHttpClientFactory httpClientFactory)
             : base(options, logger, encoder, clock)
         {
+            _httpClientFactory = httpClientFactory;
         }
 
         public Task<bool> HandleRequestAsync()

@@ -46,6 +46,8 @@ namespace Client
                         options.ResponseType = "code";
                         options.TokenEndpoint = new Uri("http://localhost:9001/token");
                     });
+
+            services.AddHttpClient();
         }
     }
 }
