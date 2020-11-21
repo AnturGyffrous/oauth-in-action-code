@@ -34,6 +34,8 @@ namespace Client.Authentication.OAuth
                 }.AsQueryString());
 
                 content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
+
+                var request = new HttpRequestMessage(HttpMethod.Post, Options.TokenEndpoint) { Content = content };
             }
 
             return Task.FromResult(false);
