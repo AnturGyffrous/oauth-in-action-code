@@ -34,6 +34,8 @@ namespace ClientTests.Controllers
             _fixture = new Fixture().Customize(new AutoMoqCustomization());
 
             _fixture.Freeze<Mock<HttpMessageHandler>>();
+
+            _fixture.Register(() => new HttpClient(_fixture.Create<HttpMessageHandler>()));
         }
 
         private readonly WebApplicationFactory<Startup> _factory;
