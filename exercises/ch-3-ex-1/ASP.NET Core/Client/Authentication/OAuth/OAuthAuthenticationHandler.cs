@@ -57,6 +57,11 @@ namespace Client.Authentication.OAuth
                 response.EnsureSuccessStatusCode();
 
                 var tokenResponse = await response.Content.ReadAsAsync<TokenResponse>();
+
+                Context.Session.SetString("AccessToken", tokenResponse.AccessToken);
+                Context.Session.SetString("TokenType", tokenResponse.TokenType);
+
+                Response.Redirect(Context.Session.GetString("RequestPath") ?? "/");
             }
 
             return false;
@@ -67,6 +72,8 @@ namespace Client.Authentication.OAuth
 
         protected override Task HandleChallengeAsync(AuthenticationProperties properties)
         {
+            Context.Session.SetString("RequestPath", Request.Path);
+
             var authorizeUrl = Options.AuthorizationEndpoint.AddQueryString(new
             {
                 response_type = Options.ResponseType,
