@@ -9,13 +9,16 @@ using Microsoft.Extensions.Options;
 
 namespace Client.Authentication.OAuth
 {
-    public class OAuthAuthenticationHandler : AuthenticationHandler<OAuthAuthenticationOptions>
+    public class OAuthAuthenticationHandler : AuthenticationHandler<OAuthAuthenticationOptions>,
+        IAuthenticationRequestHandler
     {
         public OAuthAuthenticationHandler(IOptionsMonitor<OAuthAuthenticationOptions> options, ILoggerFactory logger,
             UrlEncoder encoder, ISystemClock clock)
             : base(options, logger, encoder, clock)
         {
         }
+
+        public Task<bool> HandleRequestAsync() => Task.FromResult(false);
 
         protected override Task<AuthenticateResult> HandleAuthenticateAsync() =>
             Task.FromResult(AuthenticateResult.NoResult());
