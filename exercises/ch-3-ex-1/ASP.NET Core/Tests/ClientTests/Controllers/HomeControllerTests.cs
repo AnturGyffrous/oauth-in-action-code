@@ -19,6 +19,8 @@ using Client;
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
 
 using Moq;
 
@@ -136,8 +138,17 @@ namespace ClientTests.Controllers
         public async Task CallbackShouldRedirectToOriginalRequestUri()
         {
             // Arrange
+            var client = _factory
+                         .WithWebHostBuilder(builder =>
+                         {
+                             builder.ConfigureTestServices(services =>
+                             {
+                                 services.AddSingleton(_fixture.Create<IHttpClientFactory>());
+                             });
+                         })
+                         .CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+
             const string requestUri = "/Home/Authorize";
-            var client = _factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
             await client.GetAsync(requestUri);
 
             // Act
