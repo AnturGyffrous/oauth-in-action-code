@@ -1,4 +1,3 @@
-using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -101,6 +100,32 @@ namespace ClientTests.Controllers
                     }
                 }
             }
+        }
+
+        [Fact]
+        public async Task AuthorizeShouldReturnMethodNotAllowedWhenPostVerbIsUsed()
+        {
+            // Arrange
+            var client = _factory.CreateClient();
+
+            // Act
+            var response = await client.PostAsync("/Home/Authorize", null);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.MethodNotAllowed);
+        }
+
+        [Fact]
+        public async Task IndexShouldReturnMethodNotAllowedWhenPostVerbIsUsed()
+        {
+            // Arrange
+            var client = _factory.CreateClient();
+
+            // Act
+            var response = await client.PostAsync("", null);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.MethodNotAllowed);
         }
     }
 }
