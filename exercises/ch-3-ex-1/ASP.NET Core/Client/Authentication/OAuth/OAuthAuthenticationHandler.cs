@@ -62,6 +62,8 @@ namespace Client.Authentication.OAuth
                 Context.Session.SetString("TokenType", tokenResponse.TokenType);
 
                 Response.Redirect(Context.Session.GetString("RequestPath") ?? "/");
+
+                return true;
             }
 
             return false;
