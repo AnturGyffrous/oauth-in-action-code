@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,6 +24,7 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 
 using Moq;
+using Moq.Protected;
 
 using Xunit;
 
@@ -47,6 +49,11 @@ namespace ClientTests.Controllers
         private readonly WebApplicationFactory<Startup> _factory;
 
         private readonly IFixture _fixture;
+
+        private interface ISendAsync
+        {
+            Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken);
+        }
 
         [Theory]
         [InlineData("/Home/Authorize")]
@@ -138,6 +145,19 @@ namespace ClientTests.Controllers
         public async Task CallbackShouldRedirectToOriginalRequestUri()
         {
             // Arrange
+            _fixture.Create<Mock<HttpMessageHandler>>()
+                    .Protected()
+                    .As<ISendAsync>()
+                    .Setup(x => x.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(
+                                "{\"access_token\":\"987tghjkiu6trfghjuytrghj\",\"token_type\":\"Bearer\"}",
+                                Encoding.UTF8,
+                                "application/json")
+                        }
+                    );
+
             var client = _factory
                          .WithWebHostBuilder(builder =>
                          {
