@@ -11,6 +11,8 @@ using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 using AngleSharp.Io;
 
+using AutoFixture;
+
 using Client;
 
 using FluentAssertions;
@@ -26,9 +28,12 @@ namespace ClientTests.Controllers
         public HomeControllerTests(WebApplicationFactory<Startup> factory)
         {
             _factory = factory;
+            _fixture = new Fixture();
         }
 
         private readonly WebApplicationFactory<Startup> _factory;
+
+        private readonly IFixture _fixture;
 
         [Theory]
         [InlineData("/Home/Authorize")]
