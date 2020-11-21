@@ -53,6 +53,10 @@ namespace Client.Authentication.OAuth
                 request.Headers.Authorization = new AuthenticationHeaderValue("Basic", authenticationValue);
 
                 var response = await _httpClientFactory.CreateClient().SendAsync(request);
+
+                response.EnsureSuccessStatusCode();
+
+                var tokenResponse = await response.Content.ReadAsAsync<TokenResponse>();
             }
 
             return false;
