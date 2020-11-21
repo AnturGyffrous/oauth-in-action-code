@@ -31,7 +31,7 @@ namespace Client.Authentication.OAuth
             _httpClientFactory = httpClientFactory;
         }
 
-        public Task<bool> HandleRequestAsync()
+        public async Task<bool> HandleRequestAsync()
         {
             if (Request.Path == new PathString("/callback"))
             {
@@ -51,9 +51,11 @@ namespace Client.Authentication.OAuth
                 var authenticationValue = Convert.ToBase64String(Encoding.ASCII.GetBytes(credentials));
 
                 request.Headers.Authorization = new AuthenticationHeaderValue("Basic", authenticationValue);
+
+                var response = await _httpClientFactory.CreateClient().SendAsync(request);
             }
 
-            return Task.FromResult(false);
+            return false;
         }
 
         protected override Task<AuthenticateResult> HandleAuthenticateAsync() =>
