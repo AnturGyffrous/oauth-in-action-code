@@ -1,5 +1,8 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net;
+using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 
@@ -36,6 +39,11 @@ namespace Client.Authentication.OAuth
                 content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
 
                 var request = new HttpRequestMessage(HttpMethod.Post, Options.TokenEndpoint) { Content = content };
+
+                var credentials = $"{WebUtility.UrlEncode(Options.ClientId)}:{WebUtility.UrlEncode(Options.ClientSecret)}";
+                var authenticationValue = Convert.ToBase64String(Encoding.ASCII.GetBytes(credentials));
+
+                request.Headers.Authorization = new AuthenticationHeaderValue("Basic", authenticationValue);
             }
 
             return Task.FromResult(false);
