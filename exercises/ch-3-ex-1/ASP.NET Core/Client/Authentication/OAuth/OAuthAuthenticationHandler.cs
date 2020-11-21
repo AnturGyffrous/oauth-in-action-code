@@ -1,9 +1,12 @@
-﻿using System.Text.Encodings.Web;
+﻿using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 
 using Client.Extensions;
 
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -18,7 +21,23 @@ namespace Client.Authentication.OAuth
         {
         }
 
-        public Task<bool> HandleRequestAsync() => Task.FromResult(false);
+        public Task<bool> HandleRequestAsync()
+        {
+            if (Request.Path == new PathString("/callback"))
+            {
+                var code = Request.Query["code"];
+                var content = new StringContent(new
+                {
+                    grant_type = "authorization_code",
+                    code,
+                    redirect_uri = Options.RedirectEndpoint.ToString()
+                }.AsQueryString());
+
+                content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
+            }
+
+            return Task.FromResult(false);
+        }
 
         protected override Task<AuthenticateResult> HandleAuthenticateAsync() =>
             Task.FromResult(AuthenticateResult.NoResult());
