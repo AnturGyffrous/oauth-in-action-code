@@ -10,6 +10,8 @@ namespace Client.Authentication.OAuth
 
         public string ClientId { get; set; }
 
+        public string ClientSecret { get; set; }
+
         public Uri RedirectEndpoint { get; set; }
 
         public string ResponseType { get; set; }
