@@ -13,6 +13,18 @@ namespace Client.Extensions
                 return uri;
             }
 
+            var uriBuilder = new UriBuilder(uri) { Query = queryString.AsQueryString() };
+
+            return uriBuilder.Uri;
+        }
+
+        public static string AsQueryString(this object queryString)
+        {
+            if (queryString == null)
+            {
+                return null;
+            }
+
             var parameters = HttpUtility.ParseQueryString(string.Empty);
 
             queryString
@@ -21,9 +33,7 @@ namespace Client.Extensions
                 .ToList()
                 .ForEach(x => parameters.Add(x.Name, x.GetValue(queryString, null).ToString()));
 
-            var uriBuilder = new UriBuilder(uri) { Query = parameters.ToString() };
-
-            return uriBuilder.Uri;
+            return parameters.ToString();
         }
     }
 }
