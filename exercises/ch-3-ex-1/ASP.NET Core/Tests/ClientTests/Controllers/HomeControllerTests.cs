@@ -12,12 +12,15 @@ using AngleSharp.Html.Dom;
 using AngleSharp.Io;
 
 using AutoFixture;
+using AutoFixture.AutoMoq;
 
 using Client;
 
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Mvc.Testing;
+
+using Moq;
 
 using Xunit;
 
@@ -28,7 +31,9 @@ namespace ClientTests.Controllers
         public HomeControllerTests(WebApplicationFactory<Startup> factory)
         {
             _factory = factory;
-            _fixture = new Fixture();
+            _fixture = new Fixture().Customize(new AutoMoqCustomization());
+
+            _fixture.Freeze<Mock<HttpMessageHandler>>();
         }
 
         private readonly WebApplicationFactory<Startup> _factory;
