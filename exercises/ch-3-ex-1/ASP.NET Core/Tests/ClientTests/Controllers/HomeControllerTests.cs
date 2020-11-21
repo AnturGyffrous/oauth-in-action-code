@@ -36,6 +36,10 @@ namespace ClientTests.Controllers
             _fixture.Freeze<Mock<HttpMessageHandler>>();
 
             _fixture.Register(() => new HttpClient(_fixture.Create<HttpMessageHandler>()));
+
+            _fixture.Freeze<Mock<IHttpClientFactory>>()
+                    .Setup(x => x.CreateClient(It.IsAny<string>()))
+                    .ReturnsUsingFixture(_fixture);
         }
 
         private readonly WebApplicationFactory<Startup> _factory;
