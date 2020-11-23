@@ -169,7 +169,10 @@ namespace ClientTests.Controllers
                          .CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
 
             const string requestUri = "/Home/Authorize";
-            await client.GetAsync(requestUri);
+            var challengeResponse = await client.GetAsync(requestUri);
+            challengeResponse.StatusCode.Should().Be(HttpStatusCode.Redirect);
+            challengeResponse.Headers.Location.ToString().Should().StartWith("http://localhost:9001/authorize");
+
 
             // Act
             var response = await client.GetAsync($"/callback?code={Guid.NewGuid():N}");
