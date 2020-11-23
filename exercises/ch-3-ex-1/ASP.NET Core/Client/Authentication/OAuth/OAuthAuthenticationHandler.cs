@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
@@ -69,8 +71,21 @@ namespace Client.Authentication.OAuth
             return false;
         }
 
-        protected override Task<AuthenticateResult> HandleAuthenticateAsync() =>
-            Task.FromResult(AuthenticateResult.NoResult());
+        protected override Task<AuthenticateResult> HandleAuthenticateAsync()
+        {
+            var accessToken = Context.Session.GetString("AccessToken");
+            if (accessToken != null)
+            {
+                var identity = new ClaimsIdentity(Enumerable.Empty<Claim>(), Scheme.Name);
+                var principle = new ClaimsPrincipal(identity);
+                var properties = new AuthenticationProperties();
+                properties.StoreTokens(new[] { new AuthenticationToken { Name = "access_token", Value = accessToken } });
+                var ticket = new AuthenticationTicket(principle, properties, Scheme.Name);
+                return Task.FromResult(AuthenticateResult.Success(ticket));
+            }
+
+            return Task.FromResult(AuthenticateResult.NoResult());
+        }
 
         protected override Task HandleChallengeAsync(AuthenticationProperties properties)
         {
