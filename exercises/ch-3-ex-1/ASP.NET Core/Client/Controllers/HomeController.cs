@@ -1,5 +1,8 @@
-﻿using Client.Models;
+﻿using System.Threading.Tasks;
 
+using Client.Models;
+
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,6 +15,10 @@ namespace Client.Controllers
         public IActionResult Authorize() => RedirectToAction("Index");
 
         [HttpGet]
-        public IActionResult Index() => View(new HomeViewModel { AccessToken = null });
+        public async Task<IActionResult> Index()
+        {
+            var accessToken = await HttpContext.GetTokenAsync("access_token");
+            return View(new HomeViewModel { AccessToken = accessToken });
+        }
     }
 }
