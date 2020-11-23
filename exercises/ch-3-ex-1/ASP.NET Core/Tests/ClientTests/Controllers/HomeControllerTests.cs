@@ -194,5 +194,55 @@ namespace ClientTests.Controllers
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.MethodNotAllowed);
         }
+
+        [Fact]
+        public async Task IndexShouldReturnWithAnAccessTokenWhenAuthenticated()
+        {
+            // Arrange
+            const string accessToken = "987tghjkiu6trfghjuytrghj";
+            _fixture.Create<Mock<HttpMessageHandler>>()
+                    .Protected()
+                    .As<ISendAsync>()
+                    .Setup(x => x.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(
+                                $"{{\"access_token\":\"{accessToken}\",\"token_type\":\"Bearer\"}}",
+                                Encoding.UTF8,
+                                "application/json")
+                        }
+                    );
+
+            var client = _factory
+                         .WithWebHostBuilder(builder =>
+                         {
+                             builder.ConfigureTestServices(services =>
+                             {
+                                 services.AddSingleton(_fixture.Create<IHttpClientFactory>());
+                             });
+                         })
+                         .CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+
+            var challengeResponse = await client.GetAsync("/Home/Authorize");
+            challengeResponse.StatusCode.Should().Be(HttpStatusCode.Redirect);
+            challengeResponse.Headers.Location.ToString().Should().StartWith("http://localhost:9001/authorize");
+
+            var callbackResponse = await client.GetAsync($"/callback?code={Guid.NewGuid():N}");
+            callbackResponse.StatusCode.Should().Be(HttpStatusCode.Redirect);
+            callbackResponse.Headers.Location.ToString().Should().Be("/Home/Authorize");
+
+            var authorizeResponse = await client.GetAsync(callbackResponse.Headers.Location);
+            authorizeResponse.StatusCode.Should().Be(HttpStatusCode.Redirect);
+            authorizeResponse.Headers.Location.ToString().Should().Be("/");
+
+            // Act
+            var response = await client.GetAsync(authorizeResponse.Headers.Location);
+
+            // Assert
+            var document = await GetDocumentAsync(response);
+            document.StatusCode.Should().Be(HttpStatusCode.OK);
+            document.ContentType.Should().Be("text/html");
+            document.GetElementById("accessToken").Text().Should().Be(accessToken);
+        }
     }
 }
