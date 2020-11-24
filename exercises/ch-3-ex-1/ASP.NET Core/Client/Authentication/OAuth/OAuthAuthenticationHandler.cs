@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
@@ -21,6 +22,7 @@ namespace Client.Authentication.OAuth
         IAuthenticationRequestHandler
     {
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly RandomNumberGenerator _prng = RandomNumberGenerator.Create();
 
         public OAuthAuthenticationHandler(
             IOptionsMonitor<OAuthAuthenticationOptions> options,
@@ -37,6 +39,13 @@ namespace Client.Authentication.OAuth
         {
             if (Request.Path == new PathString("/callback"))
             {
+                var state = Request.Query["state"];
+
+                if (string.IsNullOrEmpty(state) || state != Context.Session.GetString("State"))
+                {
+                    throw new InvalidOperationException();
+                }
+
                 var code = Request.Query["code"];
                 var content = new StringContent(new
                 {
@@ -89,17 +98,28 @@ namespace Client.Authentication.OAuth
 
         protected override Task HandleChallengeAsync(AuthenticationProperties properties)
         {
+            var state = GenerateRandomState();
+
             Context.Session.SetString("RequestPath", Request.Path);
+            Context.Session.SetString("State", state);
 
             var authorizeUrl = Options.AuthorizationEndpoint.AddQueryString(new
             {
                 response_type = Options.ResponseType,
                 client_id = Options.ClientId,
-                redirect_uri = Options.RedirectEndpoint.ToString()
+                redirect_uri = Options.RedirectEndpoint.ToString(),
+                state
             });
 
             Response.Redirect(authorizeUrl.ToString());
             return Task.CompletedTask;
+        }
+
+        private string GenerateRandomState()
+        {
+            var state = new byte[36];
+            _prng.GetBytes(state);
+            return Convert.ToBase64String(state);
         }
     }
 }

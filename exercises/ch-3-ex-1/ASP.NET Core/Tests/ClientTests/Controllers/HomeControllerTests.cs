@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 
 using AngleSharp;
 using AngleSharp.Dom;
@@ -172,10 +173,10 @@ namespace ClientTests.Controllers
             var challengeResponse = await client.GetAsync(requestUri);
             challengeResponse.StatusCode.Should().Be(HttpStatusCode.Redirect);
             challengeResponse.Headers.Location.ToString().Should().StartWith("http://localhost:9001/authorize");
-
+            var state = HttpUtility.ParseQueryString(challengeResponse.Headers.Location.Query)["state"];
 
             // Act
-            var response = await client.GetAsync($"/callback?code={Guid.NewGuid():N}");
+            var response = await client.GetAsync($"/callback?code={Guid.NewGuid():N}&state={HttpUtility.UrlEncode(state)}");
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.Redirect);
@@ -226,8 +227,9 @@ namespace ClientTests.Controllers
             var challengeResponse = await client.GetAsync("/Home/Authorize");
             challengeResponse.StatusCode.Should().Be(HttpStatusCode.Redirect);
             challengeResponse.Headers.Location.ToString().Should().StartWith("http://localhost:9001/authorize");
+            var state = HttpUtility.ParseQueryString(challengeResponse.Headers.Location.Query)["state"];
 
-            var callbackResponse = await client.GetAsync($"/callback?code={Guid.NewGuid():N}");
+            var callbackResponse = await client.GetAsync($"/callback?code={Guid.NewGuid():N}&state={HttpUtility.UrlEncode(state)}");
             callbackResponse.StatusCode.Should().Be(HttpStatusCode.Redirect);
             callbackResponse.Headers.Location.ToString().Should().Be("/Home/Authorize");
 
