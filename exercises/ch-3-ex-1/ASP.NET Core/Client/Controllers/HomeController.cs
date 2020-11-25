@@ -12,7 +12,10 @@ namespace Client.Controllers
     {
         [Authorize]
         [HttpGet]
-        public IActionResult Authorize() => RedirectToAction("Index");
+        public IActionResult Authorize()
+        {
+            return RedirectToAction("Index");
+        }
 
         [HttpGet]
         public async Task<IActionResult> Index()

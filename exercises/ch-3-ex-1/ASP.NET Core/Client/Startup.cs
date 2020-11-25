@@ -2,11 +2,14 @@ using System;
 
 using Client.Authentication.OAuth;
 
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace Client
 {
@@ -48,16 +51,25 @@ namespace Client
 
             services.AddControllersWithViews();
 
-            services.AddAuthentication("OAuth")
-                    .AddScheme<OAuthAuthenticationOptions, OAuthAuthenticationHandler>("OAuth", options =>
+            services.AddAuthentication(options =>
                     {
-                        options.AuthorizationEndpoint = new Uri("http://localhost:9001/authorize");
-                        options.ClientId = "oauth-client-1";
-                        options.ClientSecret = "oauth-client-secret-1";
-                        options.RedirectEndpoint = new Uri("http://localhost:9000/callback");
-                        options.ResponseType = "code";
-                        options.TokenEndpoint = new Uri("http://localhost:9001/token");
-                    });
+                        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                        options.DefaultChallengeScheme = "OAuth";
+                    })
+                    .AddCookie()
+                    .AddRemoteScheme<OAuthAuthenticationOptions, OAuthAuthenticationHandler>("OAuth", "OAuth",
+                        options =>
+                        {
+                            options.AuthorizationEndpoint = new Uri("http://localhost:9001/authorize");
+                            options.ClientId = "oauth-client-1";
+                            options.ClientSecret = "oauth-client-secret-1";
+                            options.CallbackPath = new PathString("/callback");
+                            options.ResponseType = "code";
+                            options.TokenEndpoint = new Uri("http://localhost:9001/token");
+                        });
+
+            services.TryAddEnumerable(ServiceDescriptor
+                .Singleton<IPostConfigureOptions<OAuthAuthenticationOptions>, OAuthPostConfigureOptions>());
 
             services.AddHttpClient();
         }
