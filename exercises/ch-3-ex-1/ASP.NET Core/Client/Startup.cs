@@ -49,7 +49,7 @@ namespace Client
             services.AddControllersWithViews();
 
             services.AddAuthentication("OAuth")
-                    .AddScheme<OAuthAuthenticationOptions, OAuthAuthenticationHandler>("OAuth", options =>
+                    .AddRemoteScheme<OAuthAuthenticationOptions, OAuthAuthenticationHandler>("OAuth", "OAuth", options =>
                     {
                         options.AuthorizationEndpoint = new Uri("http://localhost:9001/authorize");
                         options.ClientId = "oauth-client-1";

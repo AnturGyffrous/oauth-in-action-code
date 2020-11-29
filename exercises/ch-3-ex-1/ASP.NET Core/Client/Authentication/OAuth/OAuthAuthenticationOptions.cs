@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authentication;
 
 namespace Client.Authentication.OAuth
 {
-    public class OAuthAuthenticationOptions : AuthenticationSchemeOptions
+    public class OAuthAuthenticationOptions : RemoteAuthenticationOptions
     {
         public Uri AuthorizationEndpoint { get; set; }
 

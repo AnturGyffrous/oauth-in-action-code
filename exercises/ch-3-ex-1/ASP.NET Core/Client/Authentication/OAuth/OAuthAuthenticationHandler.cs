@@ -18,8 +18,7 @@ using Microsoft.Extensions.Options;
 
 namespace Client.Authentication.OAuth
 {
-    public class OAuthAuthenticationHandler : AuthenticationHandler<OAuthAuthenticationOptions>,
-        IAuthenticationRequestHandler
+    public class OAuthAuthenticationHandler : RemoteAuthenticationHandler<OAuthAuthenticationOptions>
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly RandomNumberGenerator _prng = RandomNumberGenerator.Create();
@@ -35,65 +34,43 @@ namespace Client.Authentication.OAuth
             _httpClientFactory = httpClientFactory;
         }
 
-        public async Task<bool> HandleRequestAsync()
+        protected override async Task<HandleRequestResult> HandleRemoteAuthenticateAsync()
         {
-            if (Request.Path == new PathString("/callback"))
+            var state = Request.Query["state"];
+
+            if (string.IsNullOrEmpty(state) || state != Context.Session.GetString("State"))
             {
-                var state = Request.Query["state"];
-
-                if (string.IsNullOrEmpty(state) || state != Context.Session.GetString("State"))
-                {
-                    throw new InvalidOperationException();
-                }
-
-                var code = Request.Query["code"];
-                var content = new StringContent(new
-                {
-                    grant_type = "authorization_code",
-                    code,
-                    redirect_uri = Options.RedirectEndpoint.ToString()
-                }.AsQueryString());
-
-                content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
-
-                var request = new HttpRequestMessage(HttpMethod.Post, Options.TokenEndpoint) { Content = content };
-
-                var credentials = $"{WebUtility.UrlEncode(Options.ClientId)}:{WebUtility.UrlEncode(Options.ClientSecret)}";
-                var authenticationValue = Convert.ToBase64String(Encoding.ASCII.GetBytes(credentials));
-
-                request.Headers.Authorization = new AuthenticationHeaderValue("Basic", authenticationValue);
-
-                var response = await _httpClientFactory.CreateClient().SendAsync(request);
-
-                response.EnsureSuccessStatusCode();
-
-                var tokenResponse = await response.Content.ReadAsAsync<TokenResponse>();
-
-                Context.Session.SetString("AccessToken", tokenResponse.AccessToken);
-                Context.Session.SetString("TokenType", tokenResponse.TokenType);
-
-                Response.Redirect(Context.Session.GetString("RequestPath") ?? "/");
-
-                return true;
+                throw new InvalidOperationException();
             }
 
-            return false;
-        }
-
-        protected override Task<AuthenticateResult> HandleAuthenticateAsync()
-        {
-            var accessToken = Context.Session.GetString("AccessToken");
-            if (accessToken != null)
+            var code = Request.Query["code"];
+            var content = new StringContent(new
             {
-                var identity = new ClaimsIdentity(Enumerable.Empty<Claim>(), Scheme.Name);
-                var principle = new ClaimsPrincipal(identity);
-                var properties = new AuthenticationProperties();
-                properties.StoreTokens(new[] { new AuthenticationToken { Name = "access_token", Value = accessToken } });
-                var ticket = new AuthenticationTicket(principle, properties, Scheme.Name);
-                return Task.FromResult(AuthenticateResult.Success(ticket));
-            }
+                grant_type = "authorization_code",
+                code,
+                redirect_uri = Options.RedirectEndpoint.ToString()
+            }.AsQueryString());
 
-            return Task.FromResult(AuthenticateResult.NoResult());
+            content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
+
+            var request = new HttpRequestMessage(HttpMethod.Post, Options.TokenEndpoint) { Content = content };
+
+            var credentials = $"{WebUtility.UrlEncode(Options.ClientId)}:{WebUtility.UrlEncode(Options.ClientSecret)}";
+            var authenticationValue = Convert.ToBase64String(Encoding.ASCII.GetBytes(credentials));
+
+            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", authenticationValue);
+
+            var response = await _httpClientFactory.CreateClient().SendAsync(request);
+
+            response.EnsureSuccessStatusCode();
+
+            var tokenResponse = await response.Content.ReadAsAsync<TokenResponse>();
+            var identity = new ClaimsIdentity(Enumerable.Empty<Claim>(), Scheme.Name);
+            var principle = new ClaimsPrincipal(identity);
+            var properties = new AuthenticationProperties();
+            properties.StoreTokens(new[] { new AuthenticationToken { Name = "access_token", Value = tokenResponse.AccessToken } });
+            var ticket = new AuthenticationTicket(principle, properties, Scheme.Name);
+            return HandleRequestResult.Success(ticket);
         }
 
         protected override Task HandleChallengeAsync(AuthenticationProperties properties)
