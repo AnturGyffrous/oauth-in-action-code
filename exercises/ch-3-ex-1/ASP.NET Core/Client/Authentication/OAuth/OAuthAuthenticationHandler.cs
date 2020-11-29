@@ -67,7 +67,7 @@ namespace Client.Authentication.OAuth
             var tokenResponse = await response.Content.ReadAsAsync<TokenResponse>();
             var identity = new ClaimsIdentity(Enumerable.Empty<Claim>(), Scheme.Name);
             var principle = new ClaimsPrincipal(identity);
-            var properties = new AuthenticationProperties();
+            var properties = new AuthenticationProperties { RedirectUri = Context.Session.GetString("RequestPath") };
             properties.StoreTokens(new[] { new AuthenticationToken { Name = "access_token", Value = tokenResponse.AccessToken } });
             var ticket = new AuthenticationTicket(principle, properties, Scheme.Name);
             return HandleRequestResult.Success(ticket);
