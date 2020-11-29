@@ -2,6 +2,7 @@ using System;
 
 using Client.Authentication.OAuth;
 
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -48,7 +49,12 @@ namespace Client
 
             services.AddControllersWithViews();
 
-            services.AddAuthentication("OAuth")
+            services.AddAuthentication(options =>
+                    {
+                        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                        options.DefaultChallengeScheme = "OAuth";
+                    })
+                    .AddCookie()
                     .AddRemoteScheme<OAuthAuthenticationOptions, OAuthAuthenticationHandler>("OAuth", "OAuth", options =>
                     {
                         options.AuthorizationEndpoint = new Uri("http://localhost:9001/authorize");
