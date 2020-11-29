@@ -74,7 +74,7 @@ namespace ClientTests.Controllers
                     .And.Contain("response_type=code")
                     .And.Contain("client_id=oauth-client-1")
                     .And.ContainEquivalentOf(
-                        $"redirect_uri={UrlEncoder.Default.Encode("http://localhost:9000/callback")}");
+                        $"redirect_uri={UrlEncoder.Default.Encode("http://localhost/callback")}");
         }
 
         [Theory]
