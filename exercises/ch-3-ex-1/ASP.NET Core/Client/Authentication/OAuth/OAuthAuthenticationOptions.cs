@@ -4,24 +4,15 @@ using Microsoft.AspNetCore.Authentication;
 
 namespace Client.Authentication.OAuth
 {
-    public class OAuthAuthenticationOptions : RemoteAuthenticationOptions
+    public class OAuthAuthenticationOptions : AuthenticationSchemeOptions
     {
-        public OAuthAuthenticationOptions()
-        {
-            Events = new OAuthAuthenticationEvents();
-        }
-
         public Uri AuthorizationEndpoint { get; set; }
 
         public string ClientId { get; set; }
 
         public string ClientSecret { get; set; }
 
-        public new OAuthAuthenticationEvents Events
-        {
-            get => (OAuthAuthenticationEvents)base.Events;
-            set => base.Events = value;
-        }
+        public Uri RedirectEndpoint { get; set; }
 
         public string ResponseType { get; set; }
 
