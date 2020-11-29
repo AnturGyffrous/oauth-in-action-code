@@ -52,9 +52,9 @@ namespace Client
                     .AddRemoteScheme<OAuthAuthenticationOptions, OAuthAuthenticationHandler>("OAuth", "OAuth", options =>
                     {
                         options.AuthorizationEndpoint = new Uri("http://localhost:9001/authorize");
+                        options.CallbackPath = new PathString("/callback");
                         options.ClientId = "oauth-client-1";
                         options.ClientSecret = "oauth-client-secret-1";
-                        options.RedirectEndpoint = new Uri("http://localhost:9000/callback");
                         options.ResponseType = "code";
                         options.TokenEndpoint = new Uri("http://localhost:9001/token");
                     });

@@ -48,7 +48,7 @@ namespace Client.Authentication.OAuth
             {
                 grant_type = "authorization_code",
                 code,
-                redirect_uri = Options.RedirectEndpoint.ToString()
+                redirect_uri = BuildRedirectUri(Options.CallbackPath)
             }.AsQueryString());
 
             content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
@@ -84,7 +84,7 @@ namespace Client.Authentication.OAuth
             {
                 response_type = Options.ResponseType,
                 client_id = Options.ClientId,
-                redirect_uri = Options.RedirectEndpoint.ToString(),
+                redirect_uri = BuildRedirectUri(Options.CallbackPath),
                 state
             });
 
