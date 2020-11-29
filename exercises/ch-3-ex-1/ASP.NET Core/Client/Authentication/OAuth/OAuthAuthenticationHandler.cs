@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 
 namespace Client.Authentication.OAuth
 {
@@ -38,9 +39,9 @@ namespace Client.Authentication.OAuth
         {
             var state = Request.Query["state"];
 
-            if (string.IsNullOrEmpty(state) || state != Context.Session.GetString("State"))
+            if (StringValues.IsNullOrEmpty(state) || state != Context.Session.GetString("State"))
             {
-                throw new InvalidOperationException();
+                return HandleRequestResult.Fail("State value did not match");
             }
 
             var code = Request.Query["code"];
@@ -62,7 +63,11 @@ namespace Client.Authentication.OAuth
 
             var response = await _httpClientFactory.CreateClient().SendAsync(request);
 
-            response.EnsureSuccessStatusCode();
+            if (!response.IsSuccessStatusCode)
+            {
+                return HandleRequestResult.Fail(
+                    $"Unable to fetch access token, server response: {response.StatusCode}");
+            }
 
             var tokenResponse = await response.Content.ReadAsAsync<TokenResponse>();
             var identity = new ClaimsIdentity(Enumerable.Empty<Claim>(), Scheme.Name);
