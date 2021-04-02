@@ -1,6 +1,7 @@
 using System;
 
 using Client.Authentication.OAuth;
+using Client.Net.Http;
 
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -49,6 +50,8 @@ namespace Client
 
             services.AddControllersWithViews();
 
+            services.AddHttpContextAccessor();
+
             services.AddAuthentication(options =>
                     {
                         options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -65,7 +68,14 @@ namespace Client
                         options.TokenEndpoint = new Uri("http://localhost:9001/token");
                     });
 
-            services.AddHttpClient();
+            services.AddSingleton<BearerAuthorizationHttpMessageHandler>();
+
+            services
+                .AddHttpClient("ProtectedResource", client =>
+                {
+                    client.BaseAddress = new Uri("http://localhost:9002/");
+                    client.DefaultRequestHeaders.UserAgent.ParseAdd("OAuth Client");
+                }).AddHttpMessageHandler<BearerAuthorizationHttpMessageHandler>();
         }
     }
 }
