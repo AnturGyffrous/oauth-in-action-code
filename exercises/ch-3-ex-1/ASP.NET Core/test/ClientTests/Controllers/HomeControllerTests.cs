@@ -19,14 +19,20 @@ namespace ClientTests.Controllers
 
         private readonly WebApplicationFactory<Startup> _factory;
 
-        [Fact]
-        public async Task IndexShouldReturnSuccessStatusCode()
+        [Theory]
+        [InlineData("")]
+        [InlineData("/")]
+        [InlineData("/Home")]
+        [InlineData("/Home/")]
+        [InlineData("/Home/Index")]
+        [InlineData("/Home/Index/")]
+        public async Task IndexShouldReturnSuccessStatusCode(string requestUri)
         {
             // Arrange
             var client = _factory.CreateClient();
 
             // Act
-            var response = await client.GetAsync(string.Empty);
+            var response = await client.GetAsync(requestUri);
 
             // Assert
             response.IsSuccessStatusCode.Should().BeTrue();
